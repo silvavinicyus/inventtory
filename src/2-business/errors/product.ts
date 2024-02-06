@@ -33,4 +33,26 @@ export class ProductErrors extends IError {
       },
     })
   }
+
+  public static updateFailed(): IError {
+    return new ProductErrors({
+      statusCode: 500,
+      body: {
+        code: 'PRO-004',
+        message: 'Failed to update this product',
+        shortMessage: 'updateFailed',
+      },
+    })
+  }
+
+  public static insufficientQuantity(): IError {
+    return new ProductErrors({
+      statusCode: 500,
+      body: {
+        code: 'PRO-005',
+        message: 'Product quantity is not enough to perform this action.',
+        shortMessage: 'insufficientQuantity',
+      },
+    })
+  }
 }

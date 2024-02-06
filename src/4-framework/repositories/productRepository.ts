@@ -1,4 +1,7 @@
-import { IProductRepository } from '@business/repositories/product/iProductRepository'
+import {
+  IInputUpdateProduct,
+  IProductRepository,
+} from '@business/repositories/product/iProductRepository'
 import { IProductEntity } from '@domain/entities/product'
 import { injectable } from 'inversify'
 import { ProductModel } from '@framework/models/product'
@@ -10,6 +13,20 @@ import { ITransaction } from './TransactionRepository'
 
 @injectable()
 export class ProductRepository implements IProductRepository {
+  async update(
+    input: IInputUpdateProduct,
+    trx?: ITransaction
+  ): Promise<Partial<IProductEntity>> {
+    await ProductModel.update(input.newData, {
+      where: {
+        [input.updateWhere.column]: input.updateWhere.value,
+      },
+      transaction: trx,
+    })
+
+    return input.newData
+  }
+
   async findAll(
     input: IInputFindAllProductsDto
   ): Promise<IPaginatedResponse<IProductEntity>> {
