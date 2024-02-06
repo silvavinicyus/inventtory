@@ -8,6 +8,31 @@ interface IInputFindAllOptions<E>
   whereOr?: IWhere<string, unknown>[]
 }
 
+interface IInputFindByOptions<E>
+  extends IServiceOptions<keyof E, string | number> {
+  where?: IWhere<string, unknown>[]
+}
+
+export const createFindByProps = <E>(
+  props: IInputFindByOptions<E>
+): FindOptions => {
+  const findAllProps: FindOptions = {
+    where: {},
+  }
+
+  if (props.where) {
+    findAllProps.where = {
+      [Op.and]: [
+        ...props.where.map((where) => ({
+          [where.column]: where.value,
+        })),
+      ],
+    }
+  }
+
+  return findAllProps
+}
+
 export const createFindAllProps = <E>(
   props: IInputFindAllOptions<E>
 ): FindOptions => {
