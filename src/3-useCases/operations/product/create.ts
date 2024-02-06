@@ -1,5 +1,5 @@
 import { IOutputCreateProductDto } from '@business/dtos/product/create'
-import { CreateProductService } from '@business/services/product/createProductService'
+import { CreateProductService } from '@business/services/product/create'
 import { inject } from 'inversify'
 import { InputCreateProduct } from '../../serializers/product/inputCreate'
 import { AbstractUseCase } from '../abstractOperator'

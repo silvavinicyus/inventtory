@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { IOutputFindByProductDto } from '@business/dtos/product/findBy'
-import { FindByProductService } from '@business/services/product/findByProductService'
+import { FindByProductService } from '@business/services/product/findBy'
 import { AbstractUseCase } from '../abstractOperator'
 import { InputFindByProduct } from '../../serializers/product/inputFindBy'
 
