@@ -36,7 +36,7 @@ module.exports = {
         unique: true,
       },
       quantity: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       created_at: {
