@@ -1,8 +1,8 @@
-import { fooRoutes } from '@framework/controllers/foo/foo'
+import { productRoutes } from '@framework/controllers/product/product'
 import { Router } from 'express'
 
 const router = Router()
 
-router.use('/foo', fooRoutes)
+router.use('/products', productRoutes)
 
 export { router }

@@ -1,10 +1,10 @@
-import { IFooEntity } from '@domain/entities/foo'
+import { IProductEntity } from '@domain/entities/product'
 import { DataTypes, Model } from 'sequelize'
 import { sequelize } from '../utils/database'
 
-export class FooModel extends Model<IFooEntity> {}
+export class ProductModel extends Model<IProductEntity> {}
 
-FooModel.init(
+ProductModel.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -18,12 +18,22 @@ FooModel.init(
       allowNull: false,
       unique: true,
     },
-    title: {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    description: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    content: {
+    bar_code: {
       type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    quantity: {
+      type: DataTypes.NUMBER,
       allowNull: false,
     },
     created_at: {
@@ -36,7 +46,7 @@ FooModel.init(
     },
   },
   {
-    tableName: 'foos',
+    tableName: 'products',
     timestamps: false,
     underscored: true,
     sequelize,

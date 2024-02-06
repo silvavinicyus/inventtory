@@ -1,10 +1,10 @@
 import {
-  IFooRepository,
-  IFooRepositoryToken,
-} from '@business/repositories/foo/iFooRepository'
-import { FooRepository } from '@framework/repositories/fooRepository'
+  IProductRepository,
+  IProductRepositoryToken,
+} from '@business/repositories/product/iProductRepository'
+import { ProductRepository } from '@framework/repositories/productRepository'
 import { ContainerModule, interfaces } from 'inversify'
 
 export const repositoryModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<IFooRepository>(IFooRepositoryToken).to(FooRepository)
+  bind<IProductRepository>(IProductRepositoryToken).to(ProductRepository)
 })

@@ -8,7 +8,7 @@ module.exports = {
     /**  @type {import('sequelize').QueryInterface} */ queryInterface,
     _Sequelize
   ) => {
-    await queryInterface.createTable('foos', {
+    await queryInterface.createTable('products', {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -21,12 +21,22 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      title: {
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      description: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      content: {
+      bar_code: {
         type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      quantity: {
+        type: DataTypes.NUMBER,
         allowNull: false,
       },
       created_at: {
@@ -41,6 +51,6 @@ module.exports = {
   },
 
   down: async (/** @type {QueryInterface} */ queryInterface, _Sequelize) => {
-    await queryInterface.dropTable('foos')
+    await queryInterface.dropTable('products')
   },
 }
