@@ -4,6 +4,10 @@ import { UpdateProductService } from '@business/services/product/update'
 import { left } from '@shared/either'
 import { InventotyOperation } from '@shared/utils/constants'
 import { ProductErrors } from '@business/errors/product'
+import { StockChecker } from '@framework/utils/stockChecker'
+import { SendMailService } from '@business/services/mail/send'
+import { FindAllAdminUsersService } from '@business/services/adminUser/findAll'
+import { CreateTransactionService } from '@business/services/transaction/create'
 import { AbstractUseCase } from '../abstractOperator'
 import {
   IOutputUpdateQuantity,
@@ -19,7 +23,13 @@ export class UpdateQuantityUseCase extends AbstractUseCase<
     @inject(FindByProductService)
     private findByProduct: FindByProductService,
     @inject(UpdateProductService)
-    private updateProduct: UpdateProductService
+    private updateProduct: UpdateProductService,
+    @inject(SendMailService)
+    private sendMail: SendMailService,
+    @inject(FindAllAdminUsersService)
+    private findAllAdminUsers: FindAllAdminUsersService,
+    @inject(CreateTransactionService)
+    private createTransaction: CreateTransactionService
   ) {
     super()
   }
@@ -39,7 +49,7 @@ export class UpdateQuantityUseCase extends AbstractUseCase<
     }
 
     if (input.operation === InventotyOperation.REMOVE) {
-      const isPossibleToRemove = this.validateQuantityRemoval(
+      const isPossibleToRemove = StockChecker.isQuantityEnough(
         product.value.quantity,
         input.quantity
       )
@@ -54,6 +64,11 @@ export class UpdateQuantityUseCase extends AbstractUseCase<
         ? product.value.quantity + input.quantity
         : product.value.quantity - input.quantity
 
+    const transaction = await this.createTransaction.exec()
+    if (transaction.isLeft()) {
+      return left(transaction.value)
+    }
+
     const updatedProduct = await this.updateProduct.exec(
       {
         quantity: newQuantity,
@@ -61,16 +76,50 @@ export class UpdateQuantityUseCase extends AbstractUseCase<
       {
         column: 'id',
         value: product.value.id,
-      }
+      },
+      transaction.value.trx
     )
 
-    return updatedProduct
-  }
+    if (updatedProduct.isLeft()) {
+      await transaction.value.rollback()
+      return left(updatedProduct.value)
+    }
 
-  private validateQuantityRemoval(
-    productQuantity: number,
-    quantityToRemove: number
-  ): boolean {
-    return productQuantity >= quantityToRemove
+    const isStockLow = StockChecker.isStockLow(newQuantity)
+
+    if (isStockLow) {
+      const adminUsers = await this.findAllAdminUsers.exec({
+        filters: {
+          contains: [],
+          containsLike: [],
+        },
+        paginate: false,
+      })
+
+      if (adminUsers.isLeft()) {
+        await transaction.value.rollback()
+        return left(adminUsers.value)
+      }
+
+      const mailResult = await this.sendMail.exec({
+        subject: `Low Stock on ${product.value.name}`,
+        templatePath: 'lowQuantity',
+        to: [
+          ...adminUsers.value.noPaginatedResponse.map((admin) => admin.email),
+        ].join(','),
+        payload: {
+          quantity: newQuantity.toString(),
+          name: product.value.name,
+        },
+      })
+
+      if (mailResult.isLeft()) {
+        await transaction.value.rollback()
+        return left(mailResult.value)
+      }
+    }
+
+    await transaction.value.commit()
+    return updatedProduct
   }
 }
